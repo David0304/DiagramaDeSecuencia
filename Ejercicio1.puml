@@ -1,0 +1,51 @@
+@startuml
+actor "Cliente" as Cliente
+boundary "PerímetroDelPedido"
+control "ControladorDelPedido"
+entity "EntidadPedido"
+control "ControladorDelProducto"
+entity "EntidadProducto"
+
+activate Cliente
+
+autonumber "1-"
+Cliente -> PerímetroDelPedido : realizaciónDelPedido
+activate PerímetroDelPedido
+PerímetroDelPedido -> ControladorDelPedido : ingresarLaDirección
+activate ControladorDelPedido
+PerímetroDelPedido <-- ControladorDelPedido : ingresarLaDireccion
+PerímetroDelPedido -> ControladorDelPedido : iniciarElPedido
+ControladorDelPedido -> ControladorDelProducto : listaProductos
+activate ControladorDelProducto
+ControladorDelProducto -> EntidadProducto : recuperarLosProductos
+activate EntidadDelProducto
+EntidadProducto --> ControladorDelProducto : listaProductos
+deactivate EntidadDelProducto
+ControladorDelProducto --> ControladorDelPedido : listaProductos
+deactivate ControladorDelProducto
+ControladorDelPedido -> PerímetroDelPedido : mostrarProductos
+autonumber stop
+autonumber "2-"
+Cliente -> PerímetroDelPedido : selecciónProductos
+deactivate ControladorDelPedido
+PerímetroDelPedido -> ControladorDelProducto : recuperarDatosDelProducto
+activate ControladorDelProducto
+ControladorDelProducto -> EntidadProducto : recuperarDatosDelProducto
+activate EntidadProducto
+EntidadProducto --> ControladorDelProducto : datosDelProducto
+deactivate EntidadProducto
+ControladorDelProducto -> PerímetroDelPedido : mostrarDatosDelProducto
+autonumber stop
+autonumber "3-"
+Cliente -> PerímetroDelPedido : confirmaciónSelección
+PerímetroDelPedido -> ControladorDelPedido : confirmarElPedido
+activate ControladorDelPedido
+ControladorDelPedido -> EntidadPedido : registroDelPedido
+activate EntidadPedido
+EntidadPedido --> ControladorDelPedido : IDPedido
+deactivate EntidadPedido
+deactivate ControladorDelProducto
+ControladorDelPedido -> PerímetroDelPedido : mostrarID
+deactivate ControladorDelPedido
+deactivate PerímetroDelPedido
+@enduml

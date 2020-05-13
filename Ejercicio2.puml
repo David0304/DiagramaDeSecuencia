@@ -1,0 +1,73 @@
+@startuml
+actor Cliente
+boundary PerímetroPago
+control ControladorDelPedido
+entity EntidadPedido
+control ControladorDelPago
+entity EntidadPago
+boundary PerímetroBanco
+actor SistemaDeGestiónDePagosAlBanco
+boundary PerímetroEfectivo
+actor SistemaDeGestiónEnEfectivo
+
+activate Cliente
+activate SistemaDeGestiónDePagosAlBanco
+Cliente -> PerímetroPago: 1: realizaciónPago
+activate PerímetroPago
+PerímetroPago -> ControladorDelPedido : 1.1: listaPedidos
+activate ControladorDelPedido
+ControladorDelPedido -> EntidadPedido : 2: recuperarPedidos
+activate EntidadPedido
+EntidadPedido --> ControladorDelPedido : 2.1: listaPedidos
+deactivate EntidadPedido
+ControladorDelPedido -> PerímetroPago : 2.2: mostrarPedidos
+deactivate ControladorDelPedido
+loop
+Cliente -> PerímetroPago : 5: selecciónPedido
+activate ControladorDelPedido
+PerímetroPago -> ControladorDelPedido : 5.1: recuperarElPedido
+ControladorDelPedido -> EntidadPedido : 6: recuperarLosDatosDelPedido
+activate EntidadPedido
+EntidadPedido --> ControladorDelPedido : 6.1: datosDelPedido
+deactivate EntidadPedido
+ControladorDelPedido -> PerímetroPago : 6.2: mostrarLosDatosDelPedido
+deactivate ControladorDelPedido
+end
+Cliente -> PerímetroPago : 9: confirmaciónPedido
+activate ControladorDelPedido
+PerímetroPago --> ControladorDelPedido : 9.1: solicitarPago
+activate ControladorDelPago
+ControladorDelPedido -> ControladorDelPago : 9.2: pagoPedido
+deactivate ControladorDelPedido
+ControladorDelPago -> PerímetroPago : 9.3: solicitarFormaPago
+Cliente -> PerímetroPago : 10: seleccionarFormaPago
+Cliente -> PerímetroPago : 11: introducirDatos
+PerímetroPago -> ControladorDelPago : 11.1: confirmaciónDatos
+alt opciónDePago == TarjetaDeCrédito
+ControladorDelPago -> PerímetroBanco : 11.1.1: DatosBancarios
+PerímetroBanco -> SistemaDeGestiónDePagosAlBanco : 11.1.2: confirmaciónDatos
+SistemaDeGestiónDePagosAlBanco --> PerímetroBanco : 11.1.3: datosCorrectos
+activate PerímetroBanco
+PerímetroBanco -> ControladorDelPago : 11.1.4: pagoDelPedido
+ControladorDelPago -> PerímetroBanco : 11.1.5: realizaciónDelPago
+PerímetroBanco -> SistemaDeGestiónDePagosAlBanco : 11.1.6: realizaciónDelPago
+deactivate PerímetroBanco
+ControladorDelPago -> EntidadPago : 11.1.7: registrarPago
+deactivate ControladorDelPago
+activate EntidadPago
+EntidadPago -> PerímetroPago : confirmaciónPago
+deactivate PerímetroPago
+deactivate EntidadPago
+else opciónDePago == EnEfectivo
+ControladorDelPago -> PerímetroEfectivo : 11.2.1 : confirmaciónEfectivo
+PerímetroEfectivo -> SistemaDeGestiónEnEfectivo : 11.2.2 : aceptarEfectivo
+activate PerímetroPago
+SistemaDeGestiónEnEfectivo --> PerímetroEfectivo : 11.2.3 : datosCorrectos
+activate ControladorDelPago
+PerímetroEfectivo -> ControladorDelPago : 11.2.4 : pagoDelPedido
+deactivate ControladorDelPago 
+end
+ControladorDelPago -> EntidadPago : 12 : registrarElPago
+EntidadPago -> PerímetroPago : 12.1 : confirmarElPago
+deactivate PerímetroPago
+@enduml
